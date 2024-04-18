@@ -2,10 +2,16 @@ import { BrowserRouter as Router,Routes,Route } from "react-router-dom";
 import {lazy,Suspense} from "react";
 import Loader from "./components/loader";
 import Header from"./components/header";
-const Home=lazy(()=>import("./pages/home"));
-const Search=lazy(()=>import("./pages/home"));
-const Cart=lazy(()=>import("./pages/cart"));//watch (code step by step) lazy loading video
 
+
+
+const Home=lazy(()=>import("./pages/home"));
+const Search = lazy(() => import("./pages/search"));
+const Cart=lazy(()=>import("./pages/cart"));//watch (code step by step) lazy loading video
+const Shipping =lazy(()=> import("./pages/shipping"));
+const Login =lazy(()=> import("./pages/login"));
+const Orders =lazy(()=> import("./pages/orders"));
+const OrderDetails=lazy(()=> import("./pages/order-details"));
 // Admin Routes Importing
 const Dashboard = lazy(() => import("./pages/pages/admin/dashboard"));
 const Products = lazy(() => import("./pages/pages/admin/products"));
@@ -31,9 +37,16 @@ return(
     <Suspense fallback={<Loader/>}>
     <Routes>
       <Route path="/" element={<Home/>}/>
-      <Route path="/search" element={<Search/>}/>
+      <Route path="/search" element={<Search />} />
+
       <Route path="/cart" element={<Cart/>}/>
-    
+      {/*Not logged in Route */}
+      <Route path="/login" element={<Login/>}/>
+      <Route>
+      <Route path="/shipping" element={<Shipping/>}/>
+      <Route path="/orders" element={<Orders />} />
+      <Route path="/order/:id" element={<OrderDetails/>}/>
+      </Route>
     {/* Admin Routes */}
   
           

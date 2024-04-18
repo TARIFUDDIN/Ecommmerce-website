@@ -34,14 +34,31 @@
   @import "admin-styles/mixin";
   @import "home";
   @import "_cart";
+  @import "shipping";
   @import "admin-styles/dashboard";
   @import "admin-styles/products";
   @import "admin-styles/chart";
   @import "admin-styles/dashboardapp";
   @import "admin-styles/mediaquery";
+  @import "_login";
 
+.container{
+  max-width:1367px ;
+  width:100%;
+  margin:auto;
+  >h1{
+    @include heading;
+    margin:1rem 0;
+    text-align: left;
 
-
+  }
+}
+.heading{
+  @include heading;
+  margin:1rem 0;
+  text-align:center;
+  
+}
 .header{
   padding:1rem;
 @include flex(row,flex-end,strech,1.2rem);

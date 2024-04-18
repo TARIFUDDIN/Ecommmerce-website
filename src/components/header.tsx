@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-const user={_id:"gdgf", role:"admin"};
+
 import {
   FaSearch,
   FaShoppingBag,
@@ -10,7 +10,7 @@ import {
 import { useState } from "react";
 
 
-
+const user={_id:"gdgf", role:"admin"};
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
