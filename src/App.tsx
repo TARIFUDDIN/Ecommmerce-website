@@ -1,81 +1,108 @@
-import { BrowserRouter as Router,Routes,Route } from "react-router-dom";
-import {lazy,Suspense} from "react";
+import toast from "react-hot-toast";
+import { onAuthStateChanged } from "firebase/auth";
+import { Suspense, lazy, useEffect } from "react";
+import { Toaster } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import Header from "./components/header";
 import Loader from "./components/loader";
-import Header from"./components/header";
+import ProtectedRoute from "./components/protected-route";
+import { auth } from "./firebase";
+import { getUser } from "./redux/api/userAPI";
+import { userExist, userNotExist } from "./redux/reducer/userReducer";
+import { RootState } from "./redux/store";
 
-
-
-const Home=lazy(()=>import("./pages/home"));
+const Home = lazy(() => import("./pages/home"));
 const Search = lazy(() => import("./pages/search"));
-const Cart=lazy(()=>import("./pages/cart"));//watch (code step by step) lazy loading video
-const Shipping =lazy(()=> import("./pages/shipping"));
-const Login =lazy(()=> import("./pages/login"));
-const Orders =lazy(()=> import("./pages/orders"));
-const OrderDetails=lazy(()=> import("./pages/order-details"));
+const Cart = lazy(() => import("./pages/cart"));
+const Shipping = lazy(() => import("./pages/shipping"));
+const Login = lazy(() => import("./pages/login"));
+const Orders = lazy(() => import("./pages/orders"));
+const OrderDetails = lazy(() => import("./pages/order-details"));
+const NotFound = lazy(() => import("./pages/not--found"));
+const Checkout = lazy(() => import("./pages/checkout"));
+
 // Admin Routes Importing
 const Dashboard = lazy(() => import("./pages/pages/admin/dashboard"));
 const Products = lazy(() => import("./pages/pages/admin/products"));
 const Customers = lazy(() => import("./pages/pages/admin/customers"));
 const Transaction = lazy(() => import("./pages/pages/admin/transaction"));
-const BarCharts = lazy(() => import("./pages/pages/admin/charts/barcharts"));
-const PieCharts = lazy(() => import("./pages/pages/admin/charts/piecharts"));
-const LineCharts = lazy(() => import("./pages/pages/admin/charts/linecharts"));
+const Barcharts = lazy(() => import("./pages/pages/admin/charts/barcharts"));
+const Piecharts = lazy(() => import("./pages/pages/admin/charts/piecharts"));
+const Linecharts = lazy(() => import("./pages/pages/admin/charts/linecharts"));
 const Coupon = lazy(() => import("./pages/pages/admin/apps/coupon"));
 const Stopwatch = lazy(() => import("./pages/pages/admin/apps/stopwatch"));
 const Toss = lazy(() => import("./pages/pages/admin/apps/toss"));
 const NewProduct = lazy(() => import("./pages/pages/admin/management/newproduct"));
-const ProductManagement = lazy(
-  () => import("./pages/pages/admin/management/productmanagement")
-);
-const TransactionManagement = lazy(
-  () => import("./pages/pages/admin/management/transactionmanagement")
-);
-const App=()=>{
-return(
-  <Router>
-    <Header/>
-    <Suspense fallback={<Loader/>}>
-    <Routes>
-      <Route path="/" element={<Home/>}/>
-      <Route path="/search" element={<Search />} />
+const ProductManagement = lazy(() => import("./pages/pages/admin/management/productmanagement"));
+const TransactionManagement = lazy(() => import("./pages/pages/admin/management/transactionmanagement"));
 
-      <Route path="/cart" element={<Cart/>}/>
-      {/*Not logged in Route */}
-      <Route path="/login" element={<Login/>}/>
-      <Route>
-      <Route path="/shipping" element={<Shipping/>}/>
-      <Route path="/orders" element={<Orders />} />
-      <Route path="/order/:id" element={<OrderDetails/>}/>
-      </Route>
-    {/* Admin Routes */}
-  
-          
+const App = () => {
+  const { user, loading } = useSelector((state: RootState) => state.userReducer);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const data = await getUser(user.uid);
+          dispatch(userExist(data.user));
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+          toast.error("Failed to fetch user data. Please try again later.");
+          dispatch(userNotExist());
+        }
+      } else {
+        dispatch(userNotExist());
+      }
+    });
+  }, [dispatch]);
+
+  return loading ? (
+    <Loader />
+  ) : (
+    <Router>
+      {/* Header */}
+      <Header user={user} />
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/cart" element={<Cart />} />
+          {/* Not logged In Route */}
+          <Route path="/login" element={<ProtectedRoute isAuthenticated={user ? false : true}><Login /></ProtectedRoute>} />
+          {/* Logged In User Routes */}
+          <Route element={<ProtectedRoute isAuthenticated={user ? true : false} />}>
+            <Route path="/shipping" element={<Shipping />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/order/:id" element={<OrderDetails />} />
+            <Route path="/pay" element={<Checkout />} />
+          </Route>
+          {/* Admin Routes */}
+          <Route element={<ProtectedRoute isAuthenticated={true} adminOnly={true} admin={user?.role === "admin"} />}>
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/product" element={<Products />} />
             <Route path="/admin/customer" element={<Customers />} />
             <Route path="/admin/transaction" element={<Transaction />} />
             {/* Charts */}
-            <Route path="/admin/chart/bar" element={<BarCharts />} />
-            <Route path="/admin/chart/pie" element={<PieCharts />} />
-            <Route path="/admin/chart/line" element={<LineCharts />} />
+            <Route path="/admin/chart/bar" element={<Barcharts />} />
+            <Route path="/admin/chart/pie" element={<Piecharts />} />
+            <Route path="/admin/chart/line" element={<Linecharts />} />
             {/* Apps */}
             <Route path="/admin/app/coupon" element={<Coupon />} />
             <Route path="/admin/app/stopwatch" element={<Stopwatch />} />
             <Route path="/admin/app/toss" element={<Toss />} />
-
             {/* Management */}
             <Route path="/admin/product/new" element={<NewProduct />} />
-
             <Route path="/admin/product/:id" element={<ProductManagement />} />
-
-            <Route
-              path="/admin/transaction/:id"
-              element={<TransactionManagement />}
-            />
-         </Routes>
+            <Route path="/admin/transaction/:id" element={<TransactionManagement />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </Suspense>
-      
+      <Toaster position="bottom-center" />
     </Router>
-);
+  );
 };
+
 export default App;
