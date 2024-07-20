@@ -43,36 +43,27 @@ const DiscountManagement = lazy(() => import("./pages/pages/admin/management/dis
 const NewDiscount = lazy(() => import("./pages/pages/admin/management/newdiscount"));
 
 const App = () => {
-  const { user, loading } = useSelector((state: RootState) => state.userReducer);
+  const { user, loading } = useSelector(
+    (state: RootState) => state.userReducer
+  );
+
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const checkUser = async (user: any) => {
-      try {
-        if (user) {
-          const data = await getUser(user.uid);
-          dispatch(userExist(data.user));
-        } else {
-          dispatch(userNotExist());
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        dispatch(userNotExist());
-      }
-    };
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      checkUser(user);
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const data = await getUser(user.uid);
+        dispatch(userExist(data.user));
+      } else dispatch(userNotExist());
     });
+  }, []);
 
-    return () => unsubscribe(); // Cleanup on component unmount
-  }, [auth, dispatch]);
-
+  
   return loading ? (
     <Loader />
   ) : (
     <Router>
-      {/* Header */}
+
       <Header user={user} />
       <Suspense fallback={<LoaderLayout />}>
         <Routes>
@@ -80,7 +71,7 @@ const App = () => {
           <Route path="/search" element={<Search />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/cart" element={<Cart />} />
-          {/* Not logged In Route */}
+        
           <Route
             path="/login"
             element={
@@ -89,7 +80,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          {/* Logged In User Routes */}
+          
           <Route
             element={<ProtectedRoute isAuthenticated={user ? true : false} />}
           >
@@ -98,7 +89,7 @@ const App = () => {
             <Route path="/order/:id" element={<OrderDetails />} />
             <Route path="/pay" element={<Checkout />} />
           </Route>
-          {/* Admin Routes */}
+          
           <Route
             element={
               <ProtectedRoute

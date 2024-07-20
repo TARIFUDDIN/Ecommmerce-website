@@ -1,34 +1,16 @@
-import React from 'react';
 import {
   AiOutlineSortAscending,
   AiOutlineSortDescending,
-} from 'react-icons/ai';
+} from "react-icons/ai";
 import {
   Column,
   usePagination,
   useSortBy,
   useTable,
   TableOptions,
-  TableInstance,
-  TableState,
-  Row,
-} from 'react-table';
+} from "react-table";
 
-interface ExtendedTableState<T extends object> extends TableState<T> {
-  pageIndex: number;
-}
-
-interface ExtendedTableInstance<T extends object> extends TableInstance<T> {
-  page: Row<T>[];
-  nextPage: () => void;
-  previousPage: () => void;
-  pageCount: number;
-  canNextPage: boolean;
-  canPreviousPage: boolean;
-  state: ExtendedTableState<T>;
-}
-
-function TableHOC<T extends object>(
+function TableHOC<T extends Object>(
   columns: Column<T>[],
   data: T[],
   containerClassname: string,
@@ -41,8 +23,7 @@ function TableHOC<T extends object>(
       data,
       initialState: {
         pageSize: 6,
-        pageIndex: 0,
-      } as Partial<ExtendedTableState<T>>,
+      },
     };
 
     const {
@@ -57,7 +38,7 @@ function TableHOC<T extends object>(
       previousPage,
       canNextPage,
       canPreviousPage,
-    }: ExtendedTableInstance<T> = useTable(options, useSortBy, usePagination) as ExtendedTableInstance<T>;
+    } = useTable(options, useSortBy, usePagination);
 
     return (
       <div className={containerClassname}>
@@ -69,16 +50,17 @@ function TableHOC<T extends object>(
               <tr {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map((column) => (
                   <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                    {column.render('Header')}
-                    {column.isSorted ? (
+                    {column.render("Header")}
+                    {column.isSorted && (
                       <span>
+                        {" "}
                         {column.isSortedDesc ? (
                           <AiOutlineSortDescending />
                         ) : (
                           <AiOutlineSortAscending />
                         )}
                       </span>
-                    ) : null}
+                    )}
                   </th>
                 ))}
               </tr>
@@ -87,10 +69,11 @@ function TableHOC<T extends object>(
           <tbody {...getTableBodyProps()}>
             {page.map((row) => {
               prepareRow(row);
+
               return (
                 <tr {...row.getRowProps()}>
                   {row.cells.map((cell) => (
-                    <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                    <td {...cell.getCellProps()}>{cell.render("Cell")}</td>
                   ))}
                 </tr>
               );

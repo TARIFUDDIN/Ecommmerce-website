@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { Slider } from "6pp";
 import { TbTruckDelivery } from "react-icons/tb";
 import { LuShieldCheck } from "react-icons/lu";
+import { useEffect } from "react";
 
 const clients = [
   {
@@ -136,13 +137,15 @@ const Home = () => {
 
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (isError) toast.error("Cannot Fetch the Products");
+  }, [isError]);
+
   const addToCartHandler = (cartItem: CartItem) => {
     if (cartItem.stock < 1) return toast.error("Out of Stock");
     dispatch(addToCart(cartItem));
     toast.success("Added to cart");
   };
-
-  if (isError) toast.error("Cannot Fetch the Products");
 
   const coverMessage =
     "Fashion isn't just clothes; it's a vibrant language. Silhouettes and textures speak volumes, a conversation starter with every bold print. It's a way to tell our story, a confidence booster, or a playful exploration. From elegance to rebellion, fashion lets us navigate the world in style.".split(

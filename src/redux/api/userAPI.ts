@@ -12,7 +12,6 @@ export const userAPI = createApi({
   reducerPath: "userApi",
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_SERVER}/api/v1/user/`,
-    credentials: 'include', // Include credentials if needed
   }),
   tagTypes: ["users"],
   endpoints: (builder) => ({
@@ -24,6 +23,7 @@ export const userAPI = createApi({
       }),
       invalidatesTags: ["users"],
     }),
+
     deleteUser: builder.mutation<MessageResponse, DeleteUserRequest>({
       query: ({ userId, adminUserId }) => ({
         url: `${userId}?id=${adminUserId}`,
@@ -31,6 +31,7 @@ export const userAPI = createApi({
       }),
       invalidatesTags: ["users"],
     }),
+
     allUsers: builder.query<AllUsersResponse, string>({
       query: (id) => `all?id=${id}`,
       providesTags: ["users"],
@@ -41,9 +42,9 @@ export const userAPI = createApi({
 export const getUser = async (id: string) => {
   try {
     const { data }: { data: UserResponse } = await axios.get(
-      `${import.meta.env.VITE_SERVER}/api/v1/user/${id}`,
-      { withCredentials: true } // Ensure credentials are included
+      `${import.meta.env.VITE_SERVER}/api/v1/user/${id}`
     );
+
     return data;
   } catch (error) {
     throw error;
