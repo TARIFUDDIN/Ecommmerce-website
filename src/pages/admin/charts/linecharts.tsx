@@ -1,38 +1,37 @@
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
-import AdminSidebar from "../../../../components/admin/AdminSidebar";
-import { LineChart } from "../../../../components/admin/Charts";
-import { Skeleton } from "../../../../components/loader";
-import { useLineQuery } from "../../../../redux/api/dashboardAPI";
-import { RootState } from "../../../../redux/store";
-import { CustomError } from "../../../../types/api-types";
-import { getLastMonths } from "../../../../utlis/features";
+import { Skeleton } from "../../../components/loader";
+import AdminSidebar from "../../../components/admin/AdminSidebar";
+import { LineChart } from "../../../components/admin/Charts";
+import { useLineQuery } from "../../../redux/api/dashboardAPI";
+import { CustomeError } from "../../../types/api-types";
+import { UserReducerIntialState } from "../../../types/reducer-types";
+import { getLastMonth } from "../../../utlis/features";
 
-const { last12Months: months } = getLastMonths();
+const { last12Months: months } = getLastMonth();
 
 const Linecharts = () => {
-  const { user } = useSelector((state: RootState) => state.userReducer);
-
-  const { isLoading, data, error, isError } = useLineQuery(user?._id!);
-
+  const { user } = useSelector(
+    (state: { userReducer: UserReducerIntialState }) => state.userReducer
+  );
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+  const { isLoading, data, isError, error } = useLineQuery(user?._id!);
   const products = data?.charts.products || [];
   const users = data?.charts.users || [];
   const revenue = data?.charts.revenue || [];
   const discount = data?.charts.discount || [];
 
   if (isError) {
-    const err = error as CustomError;
+    const err = error as CustomeError;
     toast.error(err.data.message);
   }
-
   return (
     <div className="admin-container">
       <AdminSidebar />
       <main className="chart-container">
         <h1>Line Charts</h1>
-
         {isLoading ? (
-          <Skeleton length={15} />
+          <Skeleton length={20} />
         ) : (
           <>
             <section>

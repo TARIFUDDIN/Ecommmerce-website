@@ -111,8 +111,7 @@
           top: -1.5rem;
         }
 
-        > input,
-        > textarea {
+        > input {
           @include inputStyle(
             100%,
             1rem,
@@ -120,7 +119,6 @@
             1px solid rgba(13, 13, 13, 0.196)
           );
           border-radius: 5px;
-          max-height: 10rem;
         }
       }
 

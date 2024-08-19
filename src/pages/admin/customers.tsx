@@ -1,18 +1,19 @@
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { ReactElement, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { FaTrash } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { Column } from "react-table";
-import AdminSidebar from "../../../components/admin/AdminSidebar";
-import TableHOC from "../../../components/admin/TableHOC";
-import { Skeleton } from "../../../components/loader";
+import { Skeleton } from "../../components/loader";
+import AdminSidebar from "../../components/admin/AdminSidebar";
+import TableHOC from "../../components/admin/TableHOC";
 import {
   useAllUsersQuery,
   useDeleteUserMutation,
-} from "../../../redux/api/userAPI";
-import { RootState } from "../../../redux/store";
-import { CustomError } from "../../../types/api-types";
-import { responseToast } from "../../../utlis/features";
+} from "../../redux/api/userAPI";
+import { CustomeError } from "../../types/api-types";
+import { UserReducerIntialState } from "../../types/reducer-types";
+import { responseToast } from "../../utlis/features";
 
 interface DataType {
   avatar: ReactElement;
@@ -51,36 +52,27 @@ const columns: Column<DataType>[] = [
 ];
 
 const Customers = () => {
-  const { user } = useSelector((state: RootState) => state.userReducer);
-
+  const { user } = useSelector(
+    (state: { userReducer: UserReducerIntialState }) => state.userReducer
+  );
   const { isLoading, data, isError, error } = useAllUsersQuery(user?._id!);
 
   const [rows, setRows] = useState<DataType[]>([]);
-
+  if (isError) {
+    const err = error as CustomeError;
+    toast.error(err.data.message);
+  }
   const [deleteUser] = useDeleteUserMutation();
-
   const deleteHandler = async (userId: string) => {
     const res = await deleteUser({ userId, adminUserId: user?._id! });
     responseToast(res, null, "");
   };
-
-  if (isError) {
-    const err = error as CustomError;
-    toast.error(err.data.message);
-  }
-
   useEffect(() => {
     if (data)
       setRows(
         data.users.map((i) => ({
           avatar: (
-            <img
-              style={{
-                borderRadius: "50%",
-              }}
-              src={i.photo}
-              alt={i.name}
-            />
+            <img src={i.photo} alt={i.name} style={{ borderRadius: "50%" }} />
           ),
           name: i.name,
           email: i.email,
@@ -94,7 +86,6 @@ const Customers = () => {
         }))
       );
   }, [data]);
-
   const Table = TableHOC<DataType>(
     columns,
     rows,

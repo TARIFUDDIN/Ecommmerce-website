@@ -1,29 +1,28 @@
 import { useSelector } from "react-redux";
-import AdminSidebar from "../../../../components/admin/AdminSidebar";
-import { BarChart } from "../../../../components/admin/Charts";
-import { RootState } from "../../../../redux/store";
-import { useBarQuery } from "../../../../redux/api/dashboardAPI";
-import { CustomError } from "../../../../types/api-types";
+import AdminSidebar from "../../../components/admin/AdminSidebar";
+import { BarChart } from "../../../components/admin/Charts";
+import { UserReducerIntialState } from "../../../types/reducer-types";
+import { useBarQuery } from "../../../redux/api/dashboardAPI";
 import toast from "react-hot-toast";
-import { Skeleton } from "../../../../components/loader";
-import { getLastMonths } from "../../../../utlis/features";
+import { CustomeError } from "../../../types/api-types";
+import { Skeleton } from "../../../components/loader";
+import { getLastMonth } from "../../../utlis/features";
 
-const { last12Months, last6Months } = getLastMonths();
-
+const { last12Months, lastSixMonths } = getLastMonth();
 const Barcharts = () => {
-  const { user } = useSelector((state: RootState) => state.userReducer);
-
-  const { isLoading, data, error, isError } = useBarQuery(user?._id!);
-
+  const { user } = useSelector(
+    (state: { userReducer: UserReducerIntialState }) => state.userReducer
+  );
+  // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+  const { isLoading, data, isError, error } = useBarQuery(user?._id!);
   const products = data?.charts.products || [];
   const orders = data?.charts.orders || [];
   const users = data?.charts.users || [];
 
   if (isError) {
-    const err = error as CustomError;
+    const err = error as CustomeError;
     toast.error(err.data.message);
   }
-
   return (
     <div className="admin-container">
       <AdminSidebar />
@@ -37,9 +36,9 @@ const Barcharts = () => {
               <BarChart
                 data_1={products}
                 data_2={users}
-                labels={last6Months}
                 title_1="Products"
                 title_2="Users"
+                labels={lastSixMonths}
                 bgColor_1={`hsl(260, 50%, 30%)`}
                 bgColor_2={`hsl(360, 90%, 90%)`}
               />

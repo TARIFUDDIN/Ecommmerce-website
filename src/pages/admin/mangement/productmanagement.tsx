@@ -1,40 +1,41 @@
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import AdminSidebar from "../../../../components/admin/AdminSidebar";
-import { Skeleton } from "../../../../components/loader";
+import { Skeleton } from "../../../components/loader";
+import AdminSidebar from "../../../components/admin/AdminSidebar";
 import {
   useDeleteProductMutation,
   useProductDetailsQuery,
   useUpdateProductMutation,
-} from "../../../../redux/api/productApi";
-import { RootState, server } from "../../../../redux/store";
-import { responseToast } from "../../../../utlis/features";
+} from "../../../redux/api/productAPI";
+import { server } from "../../../redux/store";
+import { UserReducerIntialState } from "../../../types/reducer-types";
+import { responseToast } from "../../../utlis/features";
 
 const Productmanagement = () => {
-  const { user } = useSelector((state: RootState) => state.userReducer);
-
+  const { user } = useSelector(
+    (state: { userReducer: UserReducerIntialState }) => state.userReducer
+  );
   const params = useParams();
   const navigate = useNavigate();
-
   const { data, isLoading, isError } = useProductDetailsQuery(params.id!);
 
-  const { price, photo, name, stock, category } = data?.product || {
+  const { price, photo, category, name, stock } = data?.product || {
+    _id: "",
     photo: "",
     category: "",
     name: "",
     stock: 0,
     price: 0,
   };
-
   const [priceUpdate, setPriceUpdate] = useState<number>(price);
   const [stockUpdate, setStockUpdate] = useState<number>(stock);
   const [nameUpdate, setNameUpdate] = useState<string>(name);
   const [categoryUpdate, setCategoryUpdate] = useState<string>(category);
   const [photoUpdate, setPhotoUpdate] = useState<string>("");
   const [photoFile, setPhotoFile] = useState<File>();
-
   const [updateProduct] = useUpdateProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
 
@@ -56,9 +57,7 @@ const Productmanagement = () => {
 
   const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const formData = new FormData();
-
     if (nameUpdate) formData.set("name", nameUpdate);
     if (priceUpdate) formData.set("price", priceUpdate.toString());
     if (stockUpdate !== undefined)
@@ -71,19 +70,15 @@ const Productmanagement = () => {
       userId: user?._id!,
       productId: data?.product._id!,
     });
-
     responseToast(res, navigate, "/admin/product");
   };
-
   const deleteHandler = async () => {
     const res = await deleteProduct({
       userId: user?._id!,
       productId: data?.product._id!,
     });
-
     responseToast(res, navigate, "/admin/product");
   };
-
   useEffect(() => {
     if (data) {
       setNameUpdate(data.product.name);
@@ -92,9 +87,9 @@ const Productmanagement = () => {
       setCategoryUpdate(data.product.category);
     }
   }, [data]);
-
-  if (isError) return <Navigate to={"/404"} />;
-
+  if (isError) {
+    return <Navigate to={"/404"} />;
+  }
   return (
     <div className="admin-container">
       <AdminSidebar />

@@ -15,11 +15,12 @@ const Login = () => {
   const [date, setDate] = useState("");
   const [login] = useLoginMutation();
   const dispatch = useDispatch();
+
   const loginHandler = async () => {
     try {
       const provider = new GoogleAuthProvider();
       const { user } = await signInWithPopup(auth, provider);
-  
+
       const res = await login({
         name: user.displayName!,
         email: user.email!,
@@ -29,8 +30,8 @@ const Login = () => {
         role: "user",
         _id: user.uid,
       });
-  
-      if ('data' in res) {
+
+      if ("data" in res) {
         toast.success(res.data?.message as string);
         const data = await getUser(user.uid);
         dispatch(userExist(data.user));
@@ -40,11 +41,11 @@ const Login = () => {
         toast.error(message.message);
         dispatch(userNotExist());
       }
+      // console.log(user);
     } catch (error) {
-      toast.error('Sign in Failed');
+      toast.error("Sign in Failed");
     }
   };
-  
   return (
     <div className="login">
       <main>

@@ -1,31 +1,32 @@
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { BiMaleFemale } from "react-icons/bi";
 import { BsSearch } from "react-icons/bs";
 import { FaRegBell } from "react-icons/fa";
 import { HiTrendingDown, HiTrendingUp } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import AdminSidebar from "../../../components/admin/AdminSidebar";
-import { BarChart, DoughnutChart } from "../../../components/admin/Charts";
-import Table from "../../../components/admin/DashboardTable";
-import { Skeleton } from "../../../components/loader";
-import { useStatsQuery } from "../../../redux/api/dashboardAPI";
-import { RootState } from "../../../redux/store";
-import { getLastMonths } from "../../../utlis/features";
+import { Skeleton } from "../../components/loader";
+import AdminSidebar from "../../components/admin/AdminSidebar";
+import { BarChart, DoughnutChart } from "../../components/admin/Charts";
+import Table from "../../components/admin/DashboardTable";
+import { useStatsQuery } from "../../redux/api/dashboardAPI";
+import { UserReducerIntialState } from "../../types/reducer-types";
+import { getLastMonth } from "../../utlis/features";
 
 const userImg =
   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJxA5cTf-5dh5Eusm0puHbvAhOrCRPtckzjA&usqp";
 
-const { last6Months: months } = getLastMonths();
-
 const Dashboard = () => {
-  const { user } = useSelector((state: RootState) => state.userReducer);
-
+  const { user } = useSelector(
+    (state: { userReducer: UserReducerIntialState }) => state.userReducer
+  );
   const { isLoading, data, isError } = useStatsQuery(user?._id!);
 
   const stats = data?.stats!;
-
-  if (isError) return <Navigate to={"/"} />;
-
+  const { lastSixMonths: months } = getLastMonth();
+  if (isError) {
+    return <Navigate to={"/"} />;
+  }
   return (
     <div className="admin-container">
       <AdminSidebar />
@@ -43,28 +44,28 @@ const Dashboard = () => {
 
             <section className="widget-container">
               <WidgetItem
-                percent={stats.changePercent.revenue}
+                percent={stats.changedPercent.revenue}
                 amount={true}
-                value={stats.count.revenue}
+                value={stats.counts.revenue}
                 heading="Revenue"
                 color="rgb(0, 115, 255)"
               />
               <WidgetItem
-                percent={stats.changePercent.user}
-                value={stats.count.user}
+                percent={stats.changedPercent.user}
+                value={stats.counts.user}
                 color="rgb(0 198 202)"
                 heading="Users"
               />
               <WidgetItem
-                percent={stats.changePercent.order}
-                value={stats.count.order}
+                percent={stats.changedPercent.order}
+                value={stats.counts.order}
                 color="rgb(255 196 0)"
                 heading="Transactions"
               />
 
               <WidgetItem
-                percent={stats.changePercent.product}
-                value={stats.count.product}
+                percent={stats.changedPercent.product}
+                value={stats.counts.product}
                 color="rgb(76 0 255)"
                 heading="Products"
               />
@@ -90,6 +91,7 @@ const Dashboard = () => {
                 <div>
                   {stats.categoryCount.map((i) => {
                     const [heading, value] = Object.entries(i)[0];
+
                     return (
                       <CategoryItem
                         key={heading}
@@ -119,7 +121,7 @@ const Dashboard = () => {
                   <BiMaleFemale />
                 </p>
               </div>
-              <Table data={stats.latestTransaction} />
+              <Table data={stats.modifiedLatestTransaction} />
             </section>
           </>
         )}
@@ -149,11 +151,11 @@ const WidgetItem = ({
       <h4>{amount ? `₹${value}` : value}</h4>
       {percent > 0 ? (
         <span className="green">
-          <HiTrendingUp /> +{`${percent > 10000 ? 9999 : percent}%`}
+          <HiTrendingUp /> +{percent > 10000 ? 9999 : percent}%{" "}
         </span>
       ) : (
         <span className="red">
-          <HiTrendingDown /> {`${percent < -10000 ? -9999 : percent}%`}
+          <HiTrendingDown /> {percent < -10000 ? -9999 : percent}%{" "}
         </span>
       )}
     </div>
@@ -173,7 +175,7 @@ const WidgetItem = ({
         }}
       >
         {percent > 0 && `${percent > 10000 ? 9999 : percent}%`}
-        {percent < 0 && `${percent < -10000 ? -9999 : percent}%`}
+        {percent <= 0 && `${percent < -10000 ? -9999 : percent}%`}
       </span>
     </div>
   </article>

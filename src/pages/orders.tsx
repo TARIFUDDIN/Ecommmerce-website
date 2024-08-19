@@ -1,14 +1,14 @@
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { ReactElement, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Column } from "react-table";
-import TableHOC from "../components/admin/TableHOC";
 import { Skeleton } from "../components/loader";
+import TableHOC from "../components/admin/TableHOC";
 import { useMyOrdersQuery } from "../redux/api/orderAPI";
-import { RootState } from "../redux/store";
-import { CustomError } from "../types/api-types";
-
+import { CustomeError } from "../types/api-types";
+import { UserReducerIntialState } from "../types/reducer-types";
 type DataType = {
   _id: string;
   amount: number;
@@ -17,7 +17,6 @@ type DataType = {
   status: ReactElement;
   action: ReactElement;
 };
-
 const column: Column<DataType>[] = [
   {
     Header: "ID",
@@ -28,32 +27,29 @@ const column: Column<DataType>[] = [
     accessor: "quantity",
   },
   {
-    Header: "Discount",
+    Header: "DISCOUNT",
     accessor: "discount",
   },
   {
-    Header: "Amount",
+    Header: "AMOUNT",
     accessor: "amount",
   },
   {
-    Header: "Status",
+    Header: "STATUS",
     accessor: "status",
   },
   {
-    Header: "Action",
+    Header: "ACTION",
     accessor: "action",
   },
 ];
-
 const Orders = () => {
-  const { user } = useSelector((state: RootState) => state.userReducer);
-
+  const { user } = useSelector(
+    (state: { userReducer: UserReducerIntialState }) => state.userReducer
+  );
   const { isLoading, data, isError, error } = useMyOrdersQuery(user?._id!);
-
-  const [rows, setRows] = useState<DataType[]>([]);
-
   if (isError) {
-    const err = error as CustomError;
+    const err = error as CustomeError;
     toast.error(err.data.message);
   }
 
@@ -78,15 +74,24 @@ const Orders = () => {
               {i.status}
             </span>
           ),
-          action: <Link to={`/admin/transaction/${i._id}`}>Manage</Link>,
+          action: <Link to={`/admin/transaction/${i._id}`}> Manage </Link>,
         }))
       );
   }, [data]);
-
+  const [rows, setRows] = useState<DataType[]>([
+    {
+      _id: "dwwdwdq",
+      amount: 12,
+      quantity: 30,
+      discount: 400,
+      status: <span className="red">Processing</span>,
+      action: <Link to={`/order/qsdwf`}>View</Link>,
+    },
+  ]);
   const Table = TableHOC<DataType>(
     column,
     rows,
-    "dashboard-product-box",
+    "dasboard-product-box",
     "Orders",
     rows.length > 6
   )();

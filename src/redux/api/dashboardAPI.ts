@@ -6,11 +6,12 @@ import {
   StatsResponse,
 } from "../../types/api-types";
 
-export const dashboardApi = createApi({
-  reducerPath: "dashboardApi",
+export const dashboardAPI = createApi({
+  reducerPath: "dashboardAPI",
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_SERVER}/api/v1/dashboard/`,
   }),
+  tagTypes: ["orders"],
   endpoints: (builder) => ({
     stats: builder.query<StatsResponse, string>({
       query: (id) => `stats?id=${id}`,
@@ -32,4 +33,4 @@ export const dashboardApi = createApi({
 });
 
 export const { useBarQuery, useStatsQuery, useLineQuery, usePieQuery } =
-  dashboardApi;
+  dashboardAPI;

@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { ReactElement, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Column } from "react-table";
-import AdminSidebar from "../../../components/admin/AdminSidebar";
-import TableHOC from "../../../components/admin/TableHOC";
-import { Skeleton } from "../../../components/loader";
-import { useAllOrdersQuery } from "../../../redux/api/orderAPI";
-import { RootState } from "../../../redux/store";
-import { CustomError } from "../../../types/api-types";
+import { Skeleton } from "../../components/loader";
+import AdminSidebar from "../../components/admin/AdminSidebar";
+import TableHOC from "../../components/admin/TableHOC";
+import { useAllOrdersQuery } from "../../redux/api/orderAPI";
+import { CustomeError } from "../../types/api-types";
+import { UserReducerIntialState } from "../../types/reducer-types";
 
 interface DataType {
   user: string;
@@ -47,14 +48,14 @@ const columns: Column<DataType>[] = [
 ];
 
 const Transaction = () => {
-  const { user } = useSelector((state: RootState) => state.userReducer);
-
+  const { user } = useSelector(
+    (state: { userReducer: UserReducerIntialState }) => state.userReducer
+  );
   const { isLoading, data, isError, error } = useAllOrdersQuery(user?._id!);
-
   const [rows, setRows] = useState<DataType[]>([]);
 
   if (isError) {
-    const err = error as CustomError;
+    const err = error as CustomeError;
     toast.error(err.data.message);
   }
 
@@ -79,11 +80,10 @@ const Transaction = () => {
               {i.status}
             </span>
           ),
-          action: <Link to={`/admin/transaction/${i._id}`}>Manage</Link>,
+          action: <Link to={`/admin/transaction/${i._id}`}> Manage </Link>,
         }))
       );
   }, [data]);
-
   const Table = TableHOC<DataType>(
     columns,
     rows,

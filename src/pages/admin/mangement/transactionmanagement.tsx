@@ -1,17 +1,19 @@
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+/* eslint-disable no-unsafe-optional-chaining */
 import { FaTrash } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
-import AdminSidebar from "../../../../components/admin/AdminSidebar";
-import { Skeleton } from "../../../../components/loader";
+import { Skeleton } from "../../../components/loader";
+import AdminSidebar from "../../../components/admin/AdminSidebar";
 import {
   useDeleteOrderMutation,
   useOrderDetailsQuery,
   useUpdateOrderMutation,
-} from "../../../../redux/api/orderAPI";
-import { RootState, server } from "../../../../redux/store";
-import { Order, OrderItem } from "../../../../types/types";
-import { responseToast } from "../../../../utlis/features";
-
+} from "../../../redux/api/orderAPI";
+import { server } from "../../../redux/store";
+import { UserReducerIntialState } from "../../../types/reducer-types";
+import { Order, OrderItem } from "../../../types/types";
+import { responseToast } from "../../../utlis/features";
 const defaultData: Order = {
   shippingInfo: {
     address: "",
@@ -30,30 +32,28 @@ const defaultData: Order = {
   user: { name: "", _id: "" },
   _id: "",
 };
-
 const TransactionManagement = () => {
-  const { user } = useSelector((state: RootState) => state.userReducer);
-
+  const { user } = useSelector(
+    (state: { userReducer: UserReducerIntialState }) => state.userReducer
+  );
   const params = useParams();
   const navigate = useNavigate();
 
   const { isLoading, data, isError } = useOrderDetailsQuery(params.id!);
-
   const {
     shippingInfo: { address, city, state, country, pinCode },
     orderItems,
     user: { name },
     status,
-    tax,
     subtotal,
     total,
+    tax,
     discount,
     shippingCharges,
   } = data?.order || defaultData;
 
   const [updateOrder] = useUpdateOrderMutation();
   const [deleteOrder] = useDeleteOrderMutation();
-
   const updateHandler = async () => {
     const res = await updateOrder({
       userId: user?._id!,
@@ -61,7 +61,6 @@ const TransactionManagement = () => {
     });
     responseToast(res, navigate, "/admin/transaction");
   };
-
   const deleteHandler = async () => {
     const res = await deleteOrder({
       userId: user?._id!,
@@ -69,15 +68,16 @@ const TransactionManagement = () => {
     });
     responseToast(res, navigate, "/admin/transaction");
   };
-
-  if (isError) return <Navigate to={"/404"} />;
-
+  if (isError) {
+    return <Navigate to={"/404"} />;
+  }
   return (
     <div className="admin-container">
       <AdminSidebar />
+
       <main className="product-management">
         {isLoading ? (
-          <Skeleton />
+          <Skeleton length={20} />
         ) : (
           <>
             <section

@@ -1,14 +1,14 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { fetchBaseQuery, createApi } from "@reduxjs/toolkit/query/react";
 import {
   AllOrdersResponse,
   MessageResponse,
   NewOrderRequest,
-  OrderDetailsResponse,
+  OrderDetailResponse,
   UpdateOrderRequest,
 } from "../../types/api-types";
 
-export const orderApi = createApi({
-  reducerPath: "orderApi",
+export const orderAPI = createApi({
+  reducerPath: "orderAPI",
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_SERVER}/api/v1/order/`,
   }),
@@ -44,7 +44,7 @@ export const orderApi = createApi({
       query: (id) => `all?id=${id}`,
       providesTags: ["orders"],
     }),
-    orderDetails: builder.query<OrderDetailsResponse, string>({
+    orderDetails: builder.query<OrderDetailResponse, string>({
       query: (id) => id,
       providesTags: ["orders"],
     }),
@@ -52,10 +52,10 @@ export const orderApi = createApi({
 });
 
 export const {
-  useNewOrderMutation,
   useUpdateOrderMutation,
   useDeleteOrderMutation,
+  useNewOrderMutation,
   useMyOrdersQuery,
   useAllOrdersQuery,
   useOrderDetailsQuery,
-} = orderApi;
+} = orderAPI;

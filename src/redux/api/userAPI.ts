@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import axios from "axios";
 import {
   AllUsersResponse,
   DeleteUserRequest,
@@ -7,9 +6,9 @@ import {
   UserResponse,
 } from "../../types/api-types";
 import { User } from "../../types/types";
-
+import axios from "axios";
 export const userAPI = createApi({
-  reducerPath: "userApi",
+  reducerPath: "userAPI",
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_SERVER}/api/v1/user/`,
   }),
@@ -23,7 +22,6 @@ export const userAPI = createApi({
       }),
       invalidatesTags: ["users"],
     }),
-
     deleteUser: builder.mutation<MessageResponse, DeleteUserRequest>({
       query: ({ userId, adminUserId }) => ({
         url: `${userId}?id=${adminUserId}`,
@@ -31,25 +29,24 @@ export const userAPI = createApi({
       }),
       invalidatesTags: ["users"],
     }),
-
     allUsers: builder.query<AllUsersResponse, string>({
       query: (id) => `all?id=${id}`,
       providesTags: ["users"],
     }),
   }),
 });
+// console.log(userAPI);
 
 export const getUser = async (id: string) => {
+  // eslint-disable-next-line no-useless-catch
   try {
     const { data }: { data: UserResponse } = await axios.get(
       `${import.meta.env.VITE_SERVER}/api/v1/user/${id}`
     );
-
     return data;
   } catch (error) {
     throw error;
   }
 };
-
 export const { useLoginMutation, useAllUsersQuery, useDeleteUserMutation } =
   userAPI;

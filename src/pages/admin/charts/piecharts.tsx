@@ -1,31 +1,35 @@
+
+
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import AdminSidebar from "../../../../components/admin/AdminSidebar";
-import { DoughnutChart, PieChart } from "../../../../components/admin/Charts";
-import { Skeleton } from "../../../../components/loader";
-import { usePieQuery } from "../../../../redux/api/dashboardAPI";
-import { RootState } from "../../../../redux/store";
+import { Skeleton } from "../../../components/loader";
+import AdminSidebar from "../../../components/admin/AdminSidebar";
+import { DoughnutChart, PieChart } from "../../../components/admin/Charts";
+import { usePieQuery } from "../../../redux/api/dashboardAPI";
+import { UserReducerIntialState } from "../../../types/reducer-types";
 
 const PieCharts = () => {
-  const { user } = useSelector((state: RootState) => state.userReducer);
-
+  const { user } = useSelector(
+    (state: { userReducer: UserReducerIntialState }) => state.userReducer
+  );
   const { isLoading, data, isError } = usePieQuery(user?._id!);
 
+  const categories = data?.charts.productCategoriesRatio!;
   const order = data?.charts.orderFullfillment!;
-  const categories = data?.charts.productCategories!;
-  const stock = data?.charts.stockAvailablity!;
+  const stock = data?.charts.stockAvialability!;
   const revenue = data?.charts.revenueDistribution!;
   const ageGroup = data?.charts.usersAgeGroup!;
-  const adminCustomer = data?.charts.adminCustomer!;
+  const adminCustomer = data?.charts.adminsAndUsersCount!;
 
-  if (isError) return <Navigate to={"/admin/dashboard"} />;
-
+  if (isError) {
+    return <Navigate to={"/dashboard"} />;
+  }
   return (
     <div className="admin-container">
       <AdminSidebar />
       <main className="chart-container">
         <h1>Pie & Doughnut Charts</h1>
-
         {isLoading ? (
           <Skeleton length={20} />
         ) : (
@@ -53,7 +57,7 @@ const PieCharts = () => {
                   data={categories.map((i) => Object.values(i)[0])}
                   backgroundColor={categories.map(
                     (i) =>
-                      `hsl(${Object.values(i)[0] * 4}, ${
+                      `hsl(${Object.values(i)[0] * Math.random() * 4}, ${
                         Object.values(i)[0]
                       }%, 50%)`
                   )}
@@ -89,10 +93,10 @@ const PieCharts = () => {
                     "Net Margin",
                   ]}
                   data={[
-                    revenue.marketingCost,
-                    revenue.discount,
-                    revenue.burnt,
-                    revenue.productionCost,
+                    revenue.totalMarketingCost,
+                    revenue.totalDiscount,
+                    revenue.totalBurnt,
+                    revenue.totalProductionCost,
                     revenue.netMargin,
                   ]}
                   backgroundColor={[
@@ -133,7 +137,7 @@ const PieCharts = () => {
               <div>
                 <DoughnutChart
                   labels={["Admin", "Customers"]}
-                  data={[adminCustomer.admin, adminCustomer.customer]}
+                  data={[adminCustomer.admin, adminCustomer.user]}
                   backgroundColor={[`hsl(335, 100%, 38%)`, "hsl(44, 98%, 50%)"]}
                   offset={[0, 50]}
                 />
